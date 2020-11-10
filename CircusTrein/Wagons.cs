@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace CircusTrein
@@ -10,39 +11,46 @@ namespace CircusTrein
 
         public List<Dier> startDiers;
 
-        public Wagons()
+        public Wagons(List<Dier> startdiers)
         {
-            startDiers = new List<Dier> // niet hier instancieren maar door laten geven van program.cs
-            {
-                new Dier(Dier.Eten.planten,Dier.Groote.klein),
-                new Dier(Dier.Eten.planten,Dier.Groote.klein),
-                new Dier(Dier.Eten.planten,Dier.Groote.middelmatig),
-                new Dier(Dier.Eten.vlees,Dier.Groote.klein),
-                new Dier(Dier.Eten.vlees,Dier.Groote.middelmatig),
-                new Dier(Dier.Eten.vlees,Dier.Groote.klein),
-                new Dier(Dier.Eten.planten,Dier.Groote.middelmatig),
-                new Dier(Dier.Eten.vlees,Dier.Groote.klein),
-                new Dier(Dier.Eten.planten,Dier.Groote.groot),
-                new Dier(Dier.Eten.planten,Dier.Groote.middelmatig),
-                new Dier(Dier.Eten.planten,Dier.Groote.groot),
-                new Dier(Dier.Eten.vlees,Dier.Groote.middelmatig),
-                new Dier(Dier.Eten.vlees,Dier.Groote.middelmatig),
-                new Dier(Dier.Eten.planten,Dier.Groote.klein),
-                new Dier(Dier.Eten.vlees,Dier.Groote.groot),
-                new Dier(Dier.Eten.planten,Dier.Groote.klein),
-                new Dier(Dier.Eten.vlees,Dier.Groote.groot)
-            };
+            startDiers = startdiers;
+        }
 
-            int id = 0;
-            foreach (Dier dier in startDiers)
-            {
-                
-                dier.addID(id);
-                id++;
-            }
+        public List<Dier> SortList(List<Dier> dierList)
+        {
+            return dierList.OrderByDescending(x => x.groote).ThenByDescending(x => x.eten).ToList(); 
         }
   
-        public List<Dier> sortList(List<Dier> dieren) // kan met linq
+        public List<Wagon> sortDiers(List<Dier> dieren)
+        {
+            List<Wagon> wagons = new List<Wagon>();
+            wagons.Add(new Wagon());
+            foreach(Dier dier in dieren) // opsplitsen in 2 funcitien (geen bool) 1 zoekt wagon een maakt nieuwe wagon.
+            {
+                Wagon x = null;
+                foreach(Wagon wagon in wagons.ToList())
+                {
+                    if (wagon.HasSpace(dier))
+                    {
+                        x = wagon;
+                        break;
+                    }
+                } 
+                if(x != null)
+                {
+                    x.AddDier(dier);
+                }
+                else if(x == null)
+                {
+                    Wagon z = new Wagon();
+                    z.AddDier(dier);
+                    wagons.Add(z);
+                }
+            }
+            return wagons;
+        }
+
+        /*public List<Dier> sortList(List<Dier> dieren) // kan met linq
         {
             List<Dier> newList = new List<Dier>();
             int bM = 0;
@@ -98,37 +106,6 @@ namespace CircusTrein
                 }
             }
             return newList;
-        }
-
-        public List<Wagon> sortDiers(List<Dier> dieren)
-        {
-            List<Wagon> wagons = new List<Wagon>();
-            int id = 1;
-            wagons.Add(new Wagon(0));
- 
-            foreach(Dier dier in dieren) // opsplitsen in 2 funcitien (geen bool) 1 zoekt wagon een maakt nieuwe wagon.
-            {
-                bool added = true;
-                foreach(Wagon wagon in wagons.ToList())
-                {
-                    if(wagon.Punten >= (int) dier.groote && !(wagon.biggestCarn >= Convert.ToInt32(dier.groote))) //in wagon 
-                    {
-                        added = false;
-                        wagon.addDier(dier);
-                        break;
-                    }
-                }
-                if (added)
-                {
-                    wagons.Add(new Wagon(id));
-                    id++;
-                    wagons[wagons.Count - 1].addDier(dier);
-                }
-            }
-            return wagons;
-        }
-
-       
-
+        }*/
     }
 }
